@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
-	async onload() {
+	async onload() { // 플러그인을 실행했을때 실행되는 함수
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
@@ -33,7 +33,7 @@ export default class MyPlugin extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new CryptionModal(this.app).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -56,7 +56,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new CryptionModal(this.app).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -64,9 +64,6 @@ export default class MyPlugin extends Plugin {
 				}
 			}
 		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -91,47 +88,36 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class CryptionModal extends Modal {
+	password: string = '';
+
 	constructor(app: App) {
 		super(app);
 	}
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah!');
+		contentEl.empty();
+
+		//make a div for user's pw input
+		const inputPwContainerEl = contentEl.createDiv();
+        const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
+        pwInputEl.placeholder = 'Please enter your password';
+        pwInputEl.style.width = '70%';
+        pwInputEl.focus();
+
+		//make a div for pw confirmation
+		const confirmPwContainerEl = contentEl.createDiv();
+		confirmPwContainerEl.style.marginTop = '1em';
+		const pwConfirmEl = confirmPwContainerEl.createEl('input', { type: 'password', value: ''});
+		pwConfirmEl.placeholder = 'Confirm your password';
+		pwConfirmEl.style.width = '70%';
+
+		//contentEl.setText('THISISTEST');
 	}
 
 	onClose() {
 		const {contentEl} = this;
 		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }
