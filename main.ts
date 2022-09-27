@@ -30,10 +30,10 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
+			id: 'open-encrypt-modal',
+			name: 'Open Encrypt modal',
 			callback: () => {
-				new CryptionModal(this.app).open();
+				new CryptionModal(this.app, 'Encrypt').open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -90,9 +90,11 @@ export default class MyPlugin extends Plugin {
 
 class CryptionModal extends Modal {
 	password: string = '';
+	operation: string = '';
 
-	constructor(app: App) {
+	constructor(app: App, operation: string) {
 		super(app);
+		this.operation = operation;
 	}
 
 	onOpen() {
